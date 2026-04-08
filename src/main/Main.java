@@ -18,15 +18,16 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Hotel Booking System v1.0 initialized.");
         
-        // Setup initial models for querying types
+        // Setup actual rooms matching default inventory counts (10, 5, 2)
         List<Room> roomCatalog = new ArrayList<>();
-        roomCatalog.add(new SingleRoom("S-Dummy"));
-        roomCatalog.add(new DoubleRoom("D-Dummy"));
-        roomCatalog.add(new SuiteRoom("SU-Dummy"));
+        for(int i = 1; i <= 10; i++) roomCatalog.add(new SingleRoom("S1" + String.format("%02d", i)));
+        for(int i = 1; i <= 5; i++) roomCatalog.add(new DoubleRoom("D2" + String.format("%02d", i)));
+        for(int i = 1; i <= 2; i++) roomCatalog.add(new SuiteRoom("SU3" + String.format("%02d", i)));
         
         Inventory inventory = new Inventory();
         SearchService searchService = new SearchService(inventory, roomCatalog);
         core.BookingQueue bookingQueue = new core.BookingQueue();
+        service.BookingService bookingService = new service.BookingService(bookingQueue, inventory, roomCatalog);
         
         Scanner scanner = new Scanner(System.in);
         int choice;
@@ -35,7 +36,7 @@ public class Main {
             System.out.println("\n--- Hotel Booking Menu ---");
             System.out.println("1. Search Rooms");
             System.out.println("2. Add Booking Request");
-            System.out.println("3. Process Booking (Pending)");
+            System.out.println("3. Process Booking");
             System.out.println("4. Add Services (Pending)");
             System.out.println("5. View Booking History (Pending)");
             System.out.println("6. Cancel Booking (Pending)");
@@ -52,16 +53,15 @@ public class Main {
             
             switch (choice) {
                 case 1:
-                    System.out.println("\n--- Available Rooms ---");
+                    System.out.println("\n--- Available Rooms Breakdown ---");
+                    // Show distinct counts by getting unique types that have availability > 0
                     List<Room> availableRooms = searchService.searchAvailableRooms();
                     if (availableRooms.isEmpty()) {
-                        System.out.println("No rooms available at the moment.");
+                        System.out.println("No rooms available.");
                     } else {
-                        for (Room r : availableRooms) {
-                            String type = r.getClass().getSimpleName();
-                            int count = inventory.getAvailability(type);
-                            System.out.println(r + " -> Available: " + count);
-                        }
+                        System.out.println("SingleRoom -> Available: " + inventory.getAvailability("SingleRoom"));
+                        System.out.println("DoubleRoom -> Available: " + inventory.getAvailability("DoubleRoom"));
+                        System.out.println("SuiteRoom -> Available: " + inventory.getAvailability("SuiteRoom"));
                     }
                     break;
                 case 2:
@@ -73,7 +73,11 @@ public class Main {
                     bookingQueue.addBookingRequest(res);
                     System.out.println("Queue size is now: " + bookingQueue.size());
                     break;
-                case 3: case 4: case 5: case 6: case 7:
+                case 3:
+                    System.out.println("\n--- Processing Next Booking ---");
+                    bookingService.processNextBooking();
+                    break;
+                case 4: case 5: case 6: case 7:
                     System.out.println("Feature coming in a later UC.");
                     break;
                 case 8:
