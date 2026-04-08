@@ -1,37 +1,79 @@
 package main;
 
+import model.Room;
 import model.SingleRoom;
 import model.DoubleRoom;
 import model.SuiteRoom;
 import core.Inventory;
+import service.SearchService;
+
+import java.util.Scanner;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * The Main class serves as the entry point for the Hotel Booking Management System.
- *
- * @author Santhosh Pravin
- * @version 1.0
  */
 public class Main {
-
     public static void main(String[] args) {
-        System.out.println("Hotel Booking System v1.0");
-        System.out.println("Welcome to the Hotel Booking Management System!");
-        System.out.println("-------------------------------------------------");
+        System.out.println("Hotel Booking System v1.0 initialized.");
         
-        SingleRoom single = new SingleRoom("S101");
-        DoubleRoom doubleRoom = new DoubleRoom("D201");
-        SuiteRoom suite = new SuiteRoom("SU301");
+        // Setup initial models for querying types
+        List<Room> roomCatalog = new ArrayList<>();
+        roomCatalog.add(new SingleRoom("S-Dummy"));
+        roomCatalog.add(new DoubleRoom("D-Dummy"));
+        roomCatalog.add(new SuiteRoom("SU-Dummy"));
         
-        // UC3: Centralized inventory management using HashMap
         Inventory inventory = new Inventory();
+        SearchService searchService = new SearchService(inventory, roomCatalog);
         
-        System.out.println("Initial Room Availability (Managed by core.Inventory):");
-        System.out.println(single + " - Available: " + inventory.getAvailability("SingleRoom"));
-        System.out.println(doubleRoom + " - Available: " + inventory.getAvailability("DoubleRoom"));
-        System.out.println(suite + " - Available: " + inventory.getAvailability("SuiteRoom"));
+        Scanner scanner = new Scanner(System.in);
+        int choice;
+
+        do {
+            System.out.println("\n--- Hotel Booking Menu ---");
+            System.out.println("1. Search Rooms");
+            System.out.println("2. Add Booking Request (Pending)");
+            System.out.println("3. Process Booking (Pending)");
+            System.out.println("4. Add Services (Pending)");
+            System.out.println("5. View Booking History (Pending)");
+            System.out.println("6. Cancel Booking (Pending)");
+            System.out.println("7. Generate Report (Pending)");
+            System.out.println("8. Save & Exit");
+            System.out.print("Enter choice: ");
+            if (scanner.hasNextInt()) {
+                choice = scanner.nextInt();
+                scanner.nextLine(); // consume newline
+            } else {
+                System.out.println("Invalid input. Exiting.");
+                break;
+            }
+            
+            switch (choice) {
+                case 1:
+                    System.out.println("\n--- Available Rooms ---");
+                    List<Room> availableRooms = searchService.searchAvailableRooms();
+                    if (availableRooms.isEmpty()) {
+                        System.out.println("No rooms available at the moment.");
+                    } else {
+                        for (Room r : availableRooms) {
+                            String type = r.getClass().getSimpleName();
+                            int count = inventory.getAvailability(type);
+                            System.out.println(r + " -> Available: " + count);
+                        }
+                    }
+                    break;
+                case 2: case 3: case 4: case 5: case 6: case 7:
+                    System.out.println("Feature coming in a later UC.");
+                    break;
+                case 8:
+                    System.out.println("Exiting System...");
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        } while (choice != 8);
         
-        System.out.println("\nTesting Availability Update (Booking 1 SingleRoom):");
-        inventory.updateAvailability("SingleRoom", -1);
-        System.out.println(single + " - Available: " + inventory.getAvailability("SingleRoom"));
+        scanner.close();
     }
 }
