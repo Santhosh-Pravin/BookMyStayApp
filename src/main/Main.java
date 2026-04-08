@@ -26,6 +26,7 @@ public class Main {
         
         Inventory inventory = new Inventory();
         SearchService searchService = new SearchService(inventory, roomCatalog);
+        core.BookingQueue bookingQueue = new core.BookingQueue();
         
         Scanner scanner = new Scanner(System.in);
         int choice;
@@ -33,7 +34,7 @@ public class Main {
         do {
             System.out.println("\n--- Hotel Booking Menu ---");
             System.out.println("1. Search Rooms");
-            System.out.println("2. Add Booking Request (Pending)");
+            System.out.println("2. Add Booking Request");
             System.out.println("3. Process Booking (Pending)");
             System.out.println("4. Add Services (Pending)");
             System.out.println("5. View Booking History (Pending)");
@@ -63,7 +64,16 @@ public class Main {
                         }
                     }
                     break;
-                case 2: case 3: case 4: case 5: case 6: case 7:
+                case 2:
+                    System.out.print("Enter Customer Name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Enter Room Type (SingleRoom/DoubleRoom/SuiteRoom): ");
+                    String type = scanner.nextLine();
+                    model.Reservation res = new model.Reservation(name, type);
+                    bookingQueue.addBookingRequest(res);
+                    System.out.println("Queue size is now: " + bookingQueue.size());
+                    break;
+                case 3: case 4: case 5: case 6: case 7:
                     System.out.println("Feature coming in a later UC.");
                     break;
                 case 8:
