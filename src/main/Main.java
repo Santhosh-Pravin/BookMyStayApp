@@ -28,6 +28,7 @@ public class Main {
         SearchService searchService = new SearchService(inventory, roomCatalog);
         core.BookingQueue bookingQueue = new core.BookingQueue();
         service.BookingService bookingService = new service.BookingService(bookingQueue, inventory, roomCatalog);
+        service.AddOnServiceManager addOnServiceManager = new service.AddOnServiceManager();
         
         Scanner scanner = new Scanner(System.in);
         int choice;
@@ -37,7 +38,7 @@ public class Main {
             System.out.println("1. Search Rooms");
             System.out.println("2. Add Booking Request");
             System.out.println("3. Process Booking");
-            System.out.println("4. Add Services (Pending)");
+            System.out.println("4. Add Services");
             System.out.println("5. View Booking History (Pending)");
             System.out.println("6. Cancel Booking (Pending)");
             System.out.println("7. Generate Report (Pending)");
@@ -77,7 +78,26 @@ public class Main {
                     System.out.println("\n--- Processing Next Booking ---");
                     bookingService.processNextBooking();
                     break;
-                case 4: case 5: case 6: case 7:
+                case 4:
+                    System.out.print("Enter Reservation ID to add service: ");
+                    String resId = scanner.nextLine();
+                    System.out.print("Enter Service Name (e.g., Breakfast, SPA): ");
+                    String sName = scanner.nextLine();
+                    System.out.print("Enter Service Price: ");
+                    double sPrice = 0;
+                    if (scanner.hasNextDouble()) {
+                        sPrice = scanner.nextDouble();
+                        scanner.nextLine(); // consume newline
+                        model.Service addOn = new model.Service(sName, sPrice);
+                        addOnServiceManager.addServiceToReservation(resId, addOn);
+                        System.out.println("Total Add-on cost for " + resId + " is now $" + 
+                                addOnServiceManager.calculateAddOnCost(resId));
+                    } else {
+                        System.out.println("Invalid price.");
+                        scanner.nextLine();
+                    }
+                    break;
+                case 5: case 6: case 7:
                     System.out.println("Feature coming in a later UC.");
                     break;
                 case 8:
